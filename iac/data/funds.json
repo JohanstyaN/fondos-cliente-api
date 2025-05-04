@@ -1,55 +1,30 @@
 {
-    "Funds": [
+  "RequestItems": {
+    "Client": [
       {
         "PutRequest": {
           "Item": {
-            "id_fund": { "S": "FPV_EL_CLIENTE_RECAUDADORA" },
-            "category": { "S": "FPV" },
-            "minimum_amount": { "N": "75000" },
-            "name": { "S": "FPV EL CLIENTE RECAUDADORA" }
+            "user_id": { "S": "user-001" },
+            "name": { "S": "Juan Pérez" },
+            "email": { "S": "juan@example.com" },
+            "phone": { "S": "+573001112233" },
+            "balance": { "N": "500000" },
+            "created_at": { "S": "2025-05-01T20:00:00Z" }
           }
         }
       },
       {
         "PutRequest": {
           "Item": {
-            "id_fund": { "S": "FPV_EL_CLIENTE_ECOPETROL" },
-            "category": { "S": "FPV" },
-            "minimum_amount": { "N": "125000" },
-            "name": { "S": "FPV EL CLIENTE ECOPETROL" }
-          }
-        }
-      },
-      {
-        "PutRequest": {
-          "Item": {
-            "id_fund": { "S": "FDO-ACCIONES" },
-            "category": { "S": "FIC" },
-            "minimum_amount": { "N": "250000" },
-            "name": { "S": "FDO ACCIONES " }
-          }
-        }
-      },
-      {
-        "PutRequest": {
-          "Item": {
-            "id_fund": { "S": "FPV_EL_CLIENTE_DINAMICA" },
-            "category": { "S": "FPV" },
-            "minimum_amount": { "N": "100000" },
-            "name": { "S": "FPV EL CLIENTE DINAMICA" }
-          }
-        }
-      },
-      {
-        "PutRequest": {
-          "Item": {
-            "id_fund": { "S": "DEUDAPRIVADA" },
-            "category": { "S": "FIC" },
-            "minimum_amount": { "N": "50000" },
-            "name": { "S": "DEUDAPRIVADA" }
+            "user_id": { "S": "user-002" },
+            "name": { "S": "Laura Gómez" },
+            "email": { "S": "laura@example.com" },
+            "phone": { "S": "+573005556677" },
+            "balance": { "N": "100000" },
+            "created_at": { "S": "2025-05-01T20:00:00Z" }
           }
         }
       }
     ]
   }
-  
+}

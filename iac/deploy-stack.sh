@@ -33,22 +33,38 @@ SNS_SMS_TOPIC=$(aws sns list-topics \
   --query "Topics[?contains(TopicArn, 'funds-client-sms-topic')].TopicArn" \
   --output text)
 
+echo "$FUNDS_TABLE"
+echo "$CLIENT_TABLE"
+
+echo " Verificando e insertando datos en DynamoDB si es necesario..."
 # Funds
-if aws dynamodb get-item --region "$REGION" --table-name "$FUNDS_TABLE" \
-     --key '{"id_fund": {"S": "DEUDAPRIVADA"}}' --query 'Item' --output text >/dev/null; then
-  echo "  Funds ya poblada, nada que hacer."
+ITEM_FUNDS_EXISTS=$(aws dynamodb get-item \
+  --region "$REGION" \
+  --table-name "$FUNDS_TABLE" \
+  --key '{"id_fund": {"S": "DEUDAPRIVADA"}}' \
+  --query 'Item' \
+  --output json)
+
+if [ "$ITEM_FUNDS_EXISTS" = "null" ]; then
+  echo "  • Insertando datos en $FUNDS_TABLE..."
+  aws dynamodb batch-write-item --region "$REGION" --cli-input-json file://iac/data/funds.json
 else
-  echo "  Insertando datos en $FUNDS_TABLE..."
-  aws dynamodb batch-write-item --region "$REGION" --request-items file://iac/data/funds.json
+  echo "  • Funds ya poblada, nada que hacer."
 fi
 
 # Clients
-if aws dynamodb get-item --region "$REGION" --table-name "$CLIENT_TABLE" \
-     --key '{"user_id": {"S": "user-001"}}' --query 'Item' --output text >/dev/null; then
-  echo "  Clients ya poblada, nada que hacer."
+ITEM_CLIENT_EXISTS=$(aws dynamodb get-item \
+  --region "$REGION" \
+  --table-name "$CLIENT_TABLE" \
+  --key '{"user_id": {"S": "user-001"}}' \
+  --query 'Item' \
+  --output json)
+
+if [ "$ITEM_CLIENT_EXISTS" = "null" ]; then
+  echo "  • Insertando datos en $CLIENT_TABLE..."
+  aws dynamodb batch-write-item --region "$REGION" --cli-input-json file://iac/data/clients.json
 else
-  echo "  Insertando datos en $CLIENT_TABLE..."
-  aws dynamodb batch-write-item --region "$REGION" --request-items file://iac/data/clients.json
+  echo "  • Clients ya poblada, nada que hacer."
 fi
 
 # Email
