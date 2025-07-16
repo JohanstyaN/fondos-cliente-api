@@ -1,0 +1,416 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Infraestructura completa para el sistema de fondos cliente usando ECS, API Gateway, DynamoDB, y más.
+
+Parameters:
+
+  ALBPort:
+    Type: Number
+    Default: 8000
+
+  ContainerImage:
+    Type: String
+    Description: URI de la imagen en ECR
+
+
+Resources:
+
+  ### VPC y Subnets ###
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet1
+      RouteTableId: !Ref RouteTable
+
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2
+      RouteTableId: !Ref RouteTable
+
+  ### Security Group ###
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Acceso al contenedor desde internet
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+
+  ### DynamoDB Tables ###
+  ClientsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Client
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+
+  ClientFundRelationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ClientFundRelation
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: id_fund
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+        - AttributeName: id_fund
+          KeyType: RANGE
+
+  FundsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Funds
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id_fund
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id_fund
+          KeyType: HASH
+
+  TransactionHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TransactionHistory
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id_transaction
+          AttributeType: S
+        - AttributeName: user_id#fund_id#timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id_transaction
+          KeyType: HASH
+        - AttributeName: user_id#fund_id#timestamp
+          KeyType: RANGE
+
+  ### ECS Cluster ###
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: dev-funds-client
+
+  ### Task Execution Role ###
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: fondos-cliente-execution-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ECSExecutionPermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  SNSEmailTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: funds-client-notification-topic
+
+  SNSSmsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: funds-client-sms-topic
+
+  ecsTaskRoleFondosCliente:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ecsTaskRole-fondos-cliente
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowSNSPublish
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource:
+                  - !Ref SNSEmailTopic
+                  - !Ref SNSSmsTopic
+        - PolicyName: AllowDynamoDBAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource:
+                  - !GetAtt ClientsTable.Arn
+                  - !GetAtt FundsTable.Arn
+                  - !GetAtt TransactionHistoryTable.Arn
+                  - !GetAtt ClientFundRelationTable.Arn
+
+  ### Task Definition ###
+  FundsClientTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: fondos-cliente-api-task
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ecsTaskRoleFondosCliente.Arn
+      ContainerDefinitions:
+        - Name: fondos-cliente-api-container
+          Image: !Ref ContainerImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8000
+          Environment:
+            - Name: SNS_EMAIL_TOPIC_ARN
+              Value: !Ref SNSEmailTopic
+            - Name: SNS_SMS_TOPIC_ARN
+              Value: !Ref SNSSmsTopic
+          LogConfiguration:  
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/fondos-cliente
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: fondos
+
+  ### Target Group ###
+  FundsClientTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 8000
+      HealthCheckPath: /v1/funds/health
+      Protocol: HTTP
+      VpcId: !Ref VPC
+      TargetType: ip
+
+  ### Load Balancer ###
+  FundsClientALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: funds-client-alb
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroups:
+        - !Ref SecurityGroup
+      Scheme: internal 
+      Type: application
+
+
+  ### Listener ###
+  FundsClientListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref FundsClientALB
+      Port: !Ref ALBPort
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FundsClientTargetGroup
+
+  ### ECS Service ###
+  FundsClientService:
+    Type: AWS::ECS::Service
+    DependsOn: FundsClientListener  
+    Properties:
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DesiredCount: 1
+      TaskDefinition: !Ref FundsClientTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref Subnet1
+            - !Ref Subnet2
+          SecurityGroups:
+            - !Ref SecurityGroup
+      LoadBalancers:
+        - ContainerName: fondos-cliente-api-container
+          ContainerPort: 8000
+          TargetGroupArn: !Ref FundsClientTargetGroup
+
+
+  EcsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/fondos-cliente
+      RetentionInDays: 7
+    
+
+  ### VPC Link ###
+  FondosClienteVpcLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties:
+      Name: fondos-cliente-vpc-link
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+
+  ### API Gateway ###
+  FundsClientAPI:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: api-funds-client
+      ProtocolType: HTTP
+
+  FundsClientIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn: FundsClientListener
+    Properties:
+      ApiId: !Ref FundsClientAPI
+      IntegrationType: HTTP_PROXY
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref FondosClienteVpcLink
+      IntegrationMethod: ANY
+      IntegrationUri: !GetAtt FundsClientListener.ListenerArn
+      PayloadFormatVersion: "1.0"
+      TimeoutInMillis: 29000
+
+
+
+  FundsClientRouteSubscribe:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FundsClientAPI
+      RouteKey: 'POST /funds/subscribe'
+      Target: !Join [ '', [ 'integrations/', !Ref FundsClientIntegration ] ]
+
+  FundsClientRouteCancel:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FundsClientAPI
+      RouteKey: 'POST /funds/cancel'
+      Target: !Join [ '', [ 'integrations/', !Ref FundsClientIntegration ] ]
+
+  FundsClientRouteHistory:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FundsClientAPI
+      RouteKey: 'GET /funds/history'
+      Target: !Join [ '', [ 'integrations/', !Ref FundsClientIntegration ] ]
+
+  FundsClientStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: v1
+      ApiId: !Ref FundsClientAPI
+      AutoDeploy: true
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","caller":"$context.identity.caller","user":"$context.identity.user","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
+
+  ApiGatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/apigateway/funds-client-api
+      RetentionInDays: 7
+
+  ApiGatewayLogRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayLoggingPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+Outputs:
+  ApiEndpoint:
+    Description: URL del API Gateway
+    Value: !Sub 'https://${FundsClientAPI}.execute-api.${AWS::Region}.amazonaws.com/v1'
