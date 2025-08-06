@@ -190,17 +190,23 @@ pytest -q
 ~~~text
 fondos-cliente-api/
 ├── app/
-│   ├── main.py
+│   ├── main.py                     # Punto de entrada FastAPI
 │   ├── routers/
+│   │   └── funds.py                # Definición de endpoints
 │   ├── models/
+│   │   └── fund.py                 # Pydantic models
 │   ├── services/
+│   │   ├── funds_service.py        # Lógica de negocio
+│   │   └── client_service.py       # CRUD de clientes
 │   └── utils/
-├── iac/
-│   ├── deploy-stack.sh
-│   └── parameters.json
-├── tests/
-├── .env
+│       ├── relations.py            # Relación cliente–fondo en DynamoDB
+│       └── notifier.py             # Envío de notificaciones SNS
+├── iac/                            # Terraform para DynamoDB, SNS, IAM
+├── tests/                          # Tests con pytest para routers y servicios
+├── .env                            # Variables de entorno (no versionar)
+├── .gitignore
 ├── Dockerfile
+├── requirements.txt
 └── README.md
 ~~~
 
@@ -211,3 +217,4 @@ fondos-cliente-api/
 Desarrollado por **Johan Sebastián Cañon**  
 GitHub: [@JohanstyaN](https://github.com/JohanstyaN)  
 LinkedIn: [linkedin.com/in/johan-sebastian-cañon-932b0b240](https://www.linkedin.com/in/johan-sebastian-cañon-932b0b240/)
+
