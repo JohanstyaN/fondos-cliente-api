@@ -4,9 +4,12 @@ Una API RESTful desarrollada con **FastAPI** para gestionar suscripciones y canc
 
 Incluye:
 - Contenedores Docker (FastAPI)  
-- Infraestructura como código en Terraform (carpeta `iac`)  
+- Infraestructura como código (IaC) en AWS CloudFormation (carpeta `iac/`)  
 - Suite de tests automatizados con **pytest**  
 - Endpoints documentados con OpenAPI/Swagger UI  
+- Despliegue serverless en AWS ECS Fargate  
+- Notificaciones por **email/SMS** vía AWS SNS  
+- Monitorización con **CloudWatch Logs**  
 
 ---
 
@@ -14,49 +17,74 @@ Incluye:
 
 ### Health Check
 - **GET** `/v1/funds/health`  
-  Comprueba que la API está viva.
+  Verifica que la API está viva.
 
 ### Suscripción y Cancelación
+
 - **POST** `/v1/funds/subscribe`  
-  Crea una suscripción de un cliente a un fondo.  
-  - Request body:  
-    ```json
-    {
-      "user_id": "user123",
-      "id_fund": "fondo456",
-      "transaction_type": "subscribe",
-      "notification_type": "email"
-    }
-    ```
+  Crea una suscripción de un cliente a un fondo.
+
 - **POST** `/v1/funds/cancel`  
-  Cancela la suscripción de un cliente a un fondo.  
-  - Request body igual al de suscripción, con `"transaction_type": "cancel"`.
+  Cancela la suscripción de un cliente a un fondo.
+
+~~~json
+{
+  "user_id": "user123",
+  "id_fund": "fondo456",
+  "transaction_type": "subscribe",
+  "notification_type": "email"
+}
+~~~
 
 ### Historial de Transacciones
+
 - **GET** `/v1/funds/history`  
-  Recupera todas las transacciones (suscripciones y cancelaciones), ordenadas por fecha.
+  Devuelve todas las transacciones del cliente, ordenadas por fecha.
+
+---
+
+## 🧱 Arquitectura y Componentes
+
+- **Backend:** Python + FastAPI + Uvicorn  
+- **Contenedor:** Docker  
+- **Infraestructura:** AWS CloudFormation (IaC)  
+- **Ejecución:** ECS Fargate + API Gateway + Load Balancer  
+- **Base de datos:** DynamoDB (NoSQL)  
+- **Mensajería:** AWS SNS (notificaciones por Email/SMS)  
+- **CI/CD:** Script automatizado con `deploy-stack.sh`  
+- **Monitorización:** AWS CloudWatch  
+- **Seguridad:** IAM Roles con mínimos privilegios + HTTPS  
+
+---
+
+## 🧩 Modelo de datos (DynamoDB)
+
+| Tabla | Claves | Descripción |
+|-------|--------|-------------|
+| **Clients** | `user_id` (PK) | name, email, phone, balance, created_at |
+| **Funds** | `id_fund` (PK) | name, category, minimum_amount |
+| **ClientFundRelation** | `user_id` (PK), `id_fund` (SK) | Relación cliente–fondo |
+| **TransactionHistory** | `id_transaction` (PK), `user_id#fund_id#timestamp` (SK) | Registro de operaciones |
 
 ---
 
 ## 📦 Requisitos
 
-- Docker (para containerización)  
-- Python 3.10+ y `pip` (para ejecución local)  
-- AWS CLI/configuraciones o credenciales con permisos sobre DynamoDB y SNS  
-- Terraform (opcional, si vas a desplegar la infraestructura desde `iac/`)  
+- Docker  
+- Python 3.10+  
+- AWS CLI configurado (`us-east-1`)  
+- Git Bash o WSL (para ejecutar `deploy-stack.sh`)  
+- Permisos en AWS:  
+  `CloudFormation`, `ECR`, `ECS`, `DynamoDB`, `SNS`, `IAM`, `CloudWatch`, `ELBv2`, `ApiGatewayV2`
 
 ---
 
-## 🔧 Variables de entorno
-
-Crea un fichero \`.env\` en la raíz del proyecto con al menos:
+## 🛠️ Variables de entorno
 
 ~~~dotenv
-# SNS (notificaciones)
-SNS_EMAIL_TOPIC_ARN=arn:aws:sns:us-east-1:123456789012:funds-client-email-topic
-SNS_SMS_TOPIC_ARN=arn:aws:sns:us-east-1:123456789012:funds-client-sms-topic
+SNS_EMAIL_TOPIC_ARN=arn:aws:sns:us-east-1:<ACCOUNT_ID>:funds-client-email-topic
+SNS_SMS_TOPIC_ARN=arn:aws:sns:us-east-1:<ACCOUNT_ID>:funds-client-sms-topic
 
-# AWS (si no usas IAM role)
 AWS_ACCESS_KEY_ID=TU_ACCESS_KEY
 AWS_SECRET_ACCESS_KEY=TU_SECRET_KEY
 AWS_DEFAULT_REGION=us-east-1
@@ -64,67 +92,85 @@ AWS_DEFAULT_REGION=us-east-1
 
 ---
 
-## 🏗️ Instalación y ejecución
-
-### Con Docker
+## 🐳 Uso con Docker
 
 ~~~bash
 # 1. Clona el repositorio
 git clone https://github.com/JohanstyaN/fondos-cliente-api.git
 cd fondos-cliente-api
 
-# 2. Copia el .env y ajusta variables
-cp .env.sample .env   # si hubiera un .env.sample
-
-# 3. Construye la imagen
+# 2. Construye la imagen Docker
 docker build -t fondos-cliente-api .
 
-# 4. Ejecuta el contenedor
-docker run -d --name fondos-api \
-  --env-file .env \
-  -p 8000:8000 \
+# 3. Ejecuta el contenedor
+docker run -d --name fondos-api \\
+  --env-file .env \\
+  -p 8000:8000 \\
   fondos-cliente-api
 ~~~
 
-### Local (sin Docker)
+---
+
+## 🔧 Deploy en AWS (CloudFormation)
+
+### 1️⃣ Subir imagen a ECR
 
 ~~~bash
-git clone https://github.com/JohanstyaN/fondos-cliente-api.git
-cd fondos-cliente-api
-python3 -m venv .venv && source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+docker build -t fondos-cliente-api .
+
+docker tag fondos-cliente-api:latest 259711294275.dkr.ecr.us-east-1.amazonaws.com/fondos-cliente-api:latest
+
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 259711294275.dkr.ecr.us-east-1.amazonaws.com
+
+docker push 259711294275.dkr.ecr.us-east-1.amazonaws.com/fondos-cliente-api:latest
 ~~~
+
+> 📌 Asegúrate de colocar la misma URL de imagen en `iac/parameters.json`.
 
 ---
 
-## 📡 Documentación interactiva
+### 2️⃣ Ejecutar el despliegue (CloudFormation)
 
-~~~text
-Swagger UI → http://localhost:8000/docs  
-ReDoc      → http://localhost:8000/redoc
+> ⚠️ **IMPORTANTE**: Usa Git Bash (Windows) o cualquier consola Bash compatible.
+
+~~~bash
+bash iac/deploy-stack.sh
 ~~~
+
+Este script:
+- Despliega o actualiza el stack de AWS.
+- Inserta datos iniciales en DynamoDB si están vacíos.
+- Crea suscripciones SNS (evitando duplicados).
 
 ---
 
-## 🔍 Probar con curl
+### 3️⃣ Validación
+
+- Revisa el endpoint generado:  
+  `https://<api-id>.execute-api.us-east-1.amazonaws.com/v1`
+
+- Prueba el Swagger UI:  
+  `https://<api-id>.execute-api.us-east-1.amazonaws.com/v1/docs`
+
+---
+
+## 📡 Pruebas con curl
 
 ~~~bash
 # Health check
 curl http://localhost:8000/v1/funds/health
 
-# Suscribirse a un fondo
-curl -X POST http://localhost:8000/v1/funds/subscribe \
-     -H "Content-Type: application/json" \
-     -d '{"user_id":"user123","id_fund":"fondo456","transaction_type":"subscribe","notification_type":"email"}'
+# Suscripción
+curl -X POST http://localhost:8000/v1/funds/subscribe \\
+  -H "Content-Type: application/json" \\
+  -d '{"user_id":"user123","id_fund":"fondo456","transaction_type":"subscribe","notification_type":"email"}'
 
 # Cancelar suscripción
-curl -X POST http://localhost:8000/v1/fonds/cancel \
-     -H "Content-Type: application/json" \
-     -d '{"user_id":"user123","id_fund":"fondo456","transaction_type":"cancel"}'
+curl -X POST http://localhost:8000/v1/funds/cancel \\
+  -H "Content-Type: application/json" \\
+  -d '{"user_id":"user123","id_fund":"fondo456","transaction_type":"cancel"}'
 
-# Historial de transacciones
+# Historial
 curl http://localhost:8000/v1/funds/history
 ~~~
 
@@ -133,10 +179,7 @@ curl http://localhost:8000/v1/funds/history
 ## 🧪 Tests automatizados
 
 ~~~bash
-# Instala pytest si no está
-pip install pytest
-
-# Ejecuta todos los tests
+pip install -r requirements.txt
 pytest -q
 ~~~
 
@@ -147,37 +190,19 @@ pytest -q
 ~~~text
 fondos-cliente-api/
 ├── app/
-│   ├── main.py                     # Punto de entrada FastAPI
+│   ├── main.py
 │   ├── routers/
-│   │   └── funds.py                # Definición de endpoints
 │   ├── models/
-│   │   └── fund.py                 # Pydantic models
 │   ├── services/
-│   │   ├── funds_service.py        # Lógica de negocio
-│   │   └── client_service.py       # CRUD de clientes
 │   └── utils/
-│       ├── relations.py            # Relación cliente–fondo en DynamoDB
-│       └── notifier.py             # Envío de notificaciones SNS
-├── iac/                            # Terraform para DynamoDB, SNS, IAM…
-├── tests/                          # Tests con pytest para routers y servicios
-├── .env                            # Variables de entorno (no versionar)
-├── .gitignore
+├── iac/
+│   ├── deploy-stack.sh
+│   └── parameters.json
+├── tests/
+├── .env
 ├── Dockerfile
-├── requirements.txt
 └── README.md
 ~~~
-
----
-
-## ⚠️ Notas importantes
-
-- Asegúrate de crear las tablas de DynamoDB:
-  - `Funds` (con `id_fund`, `minimum_amount`)
-  - `Client` (con `user_id`, `balance`, `email`, …)
-  - `ClientFundRelation` (con `user_id`, `id_fund`, `subscribed_at`)
-  - `TransactionHistory` (con `id_transaction`, `user_id#fund_id#timestamp`, …)
-- Configura tus SNS topics y coloca sus ARNs en el \`.env\`.
-- En producción, usa IAM Roles y KMS para cifrar variables sensibles.
 
 ---
 
