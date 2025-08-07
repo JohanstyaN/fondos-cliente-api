@@ -1,6 +1,7 @@
 from typing import Optional
 import uuid
 import logging
+import os
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -15,7 +16,12 @@ from app.utils.notifier import send_fund_notification
 logger = logging.getLogger("funds-service")
 logger.setLevel(logging.INFO)
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb_endpoint = os.getenv('DYNAMODB_ENDPOINT_URL')
+if dynamodb_endpoint:
+    dynamodb = boto3.resource('dynamodb', endpoint_url=dynamodb_endpoint)
+else:
+    dynamodb = boto3.resource('dynamodb')
+
 transactions_table = dynamodb.Table('TransactionHistory')
 funds_table = dynamodb.Table('Funds')
 
@@ -73,7 +79,6 @@ def create_transaction(user_id: str, id_fund: str, transaction_type: str, notifi
 
     update_client_balance(user_id, new_balance)
     logger.info(f"Client balance updated to {new_balance}")
-    send_fund_notification(user_id, id_fund, transaction_type, notification_type)
 
     transaction_id = str(uuid.uuid4())
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -106,6 +111,20 @@ def create_transaction(user_id: str, id_fund: str, transaction_type: str, notifi
     except ClientError as e:
         logger.exception("Error writing transaction to DynamoDB.")
         raise RuntimeError(f"Error writing transaction: {e.response['Error']['Message']}")
+
+    try:
+        send_fund_notification(user_id, id_fund, transaction_type, notification_type)
+        transactions_table.update_item(
+            Key={
+                "id_transaction": f"trans#{transaction_id}",
+                "user_id#fund_id#timestamp": f"{user_id}#{id_fund}#{item_data['timestamp']}"
+            },
+            UpdateExpression="SET notification = :notification",
+            ExpressionAttributeValues={":notification": True}
+        )
+        logger.info("Notification sent and recorded successfully.")
+    except Exception as e:
+        logger.error(f"Failed to send notification, but transaction was recorded: {e}")
 
     return {
         'transaction_id': transaction_id,

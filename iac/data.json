@@ -1,0 +1,125 @@
+{
+  "clients": [
+    {
+      "user_id": {
+        "S": "user001"
+      },
+      "name": {
+        "S": "Juan Pérez"
+      },
+      "email": {
+        "S": "juan.perez@email.com"
+      },
+      "phone": {
+        "S": "+57 300 123 4567"
+      },
+      "balance": {
+        "N": "500000"
+      }
+    },
+    {
+      "user_id": {
+        "S": "user002"
+      },
+      "name": {
+        "S": "María García"
+      },
+      "email": {
+        "S": "maria.garcia@email.com"
+      },
+      "phone": {
+        "S": "+57 301 234 5678"
+      },
+      "balance": {
+        "N": "750000"
+      }
+    }
+  ],
+  "funds": [
+    {
+      "id_fund": {
+        "S": "FPV_BTG_PACTUAL_RECAUDADORA"
+      },
+      "name": {
+        "S": "FPV_BTG_PACTUAL_RECAUDADORA"
+      },
+      "minimum_amount": {
+        "N": "75000"
+      },
+      "category": {
+        "S": "FPV"
+      },
+      "description": {
+        "S": "Fondo de pensiones voluntarias BTG Pactual"
+      }
+    },
+    {
+      "id_fund": {
+        "S": "FPV_BTG_PACTUAL_ECOPETROL"
+      },
+      "name": {
+        "S": "FPV_BTG_PACTUAL_ECOPETROL"
+      },
+      "minimum_amount": {
+        "N": "125000"
+      },
+      "category": {
+        "S": "FPV"
+      },
+      "description": {
+        "S": "Fondo de pensiones voluntarias BTG Pactual Ecopetrol"
+      }
+    },
+    {
+      "id_fund": {
+        "S": "DEUDAPRIVADA"
+      },
+      "name": {
+        "S": "DEUDAPRIVADA"
+      },
+      "minimum_amount": {
+        "N": "50000"
+      },
+      "category": {
+        "S": "FIC"
+      },
+      "description": {
+        "S": "Fondo de inversión colectiva de deuda privada"
+      }
+    },
+    {
+      "id_fund": {
+        "S": "FDO-ACCIONES"
+      },
+      "name": {
+        "S": "FDO-ACCIONES"
+      },
+      "minimum_amount": {
+        "N": "250000"
+      },
+      "category": {
+        "S": "FIC"
+      },
+      "description": {
+        "S": "Fondo de inversión en acciones"
+      }
+    },
+    {
+      "id_fund": {
+        "S": "FPV_BTG_PACTUAL_DINAMICA"
+      },
+      "name": {
+        "S": "FPV_BTG_PACTUAL_DINAMICA"
+      },
+      "minimum_amount": {
+        "N": "100000"
+      },
+      "category": {
+        "S": "FPV"
+      },
+      "description": {
+        "S": "Fondo de pensiones voluntarias BTG Pactual Dinámica"
+      }
+    }
+  ]
+}

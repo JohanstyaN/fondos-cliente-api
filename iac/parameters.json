@@ -1,6 +1,0 @@
-[
-    {
-      "ParameterKey": "ContainerImage",
-      "ParameterValue": "259711294275.dkr.ecr.us-east-1.amazonaws.com/fondos-cliente-api:latest"
-    }
-]

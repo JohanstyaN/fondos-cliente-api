@@ -1,11 +1,17 @@
 from decimal import Decimal
 import boto3
+import os
 from botocore.exceptions import ClientError
 
 from app.models.fund import ClientModel
 
-dynamodb = boto3.resource('dynamodb')
-client_table = dynamodb.Table('Client')
+dynamodb_endpoint = os.getenv('DYNAMODB_ENDPOINT_URL')
+if dynamodb_endpoint:
+    dynamodb = boto3.resource('dynamodb', endpoint_url=dynamodb_endpoint)
+else:
+    dynamodb = boto3.resource('dynamodb')
+
+client_table = dynamodb.Table('Clients')
 
 def get_client(user_id: str) -> dict:
     try:
@@ -15,7 +21,6 @@ def get_client(user_id: str) -> dict:
         return ClientModel.model_validate(response["Item"]).model_dump()
     except ClientError as e:
         raise RuntimeError(f"Error accessing Clients table: {e.response['Error']['Message']}")
-
 
 def update_client_balance(user_id: str, new_balance: float):
     try:
