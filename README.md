@@ -11,7 +11,7 @@
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="60" height="60" alt="TypeScript"/>
   <img src="https://www.svgrepo.com/show/331370/docker.svg" width="60" height="60" alt="Docker"/>
   <img src="https://images.icon-icons.com/2407/PNG/512/aws_icon_146074.png" width="60" alt="AWS"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="60" height="60" alt="Nginx"/>
+  <img src="https://images.icon-icons.com/2699/PNG/512/nginx_logo_icon_169915.png" width="60" height="60" alt="Nginx"/>
 </p>
 
 ## 🏗️ Arquitectura
@@ -40,7 +40,7 @@
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="50" alt="TypeScript"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="50" alt="HTML5"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="50" alt="CSS3"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="50" alt="Nginx"/>
+  <img src="https://images.icon-icons.com/2699/PNG/512/nginx_logo_icon_169915.png" width="50" alt="Nginx"/>
 </div>
 
 <br/>
@@ -48,7 +48,7 @@
 <div align="center">
   <strong>Cloud & Infraestructura</strong><br/>
   <img src="https://images.icon-icons.com/2407/PNG/512/aws_icon_146074.png" width="50" alt="AWS"/>
-  <img src="https://www.svgrepo.com/show/349587/amazon-s3.svg" width="50" alt="S3"/>
+  <img src="https://user-images.githubusercontent.com/15157491/75435753-6929fc80-594b-11ea-9e19-f78223916862.png" width="40" alt="S3"/>
   <img src="https://www.svgrepo.com/download/353450/aws-dynamodb.svg" width="50" alt="DynamoDB"/>
   <img src="https://cdn.worldvectorlogo.com/logos/aws-sns.svg" width="50" alt="SNS"/>
 </div>
