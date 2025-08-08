@@ -47,7 +47,7 @@
 
 <div align="center">
   <strong>Cloud & Infraestructura</strong><br/>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" width="70" alt="AWS"/>
+  <img src="https://www.vissensa.com/wp-content/uploads/2021/10/Amazon-Web-Services-AWS-Logo.png" width="70" alt="AWS"/>
   <img src="https://www.svgrepo.com/show/349587/amazon-s3.svg" width="50" alt="S3"/>
   <img src="https://www.svgrepo.com/download/353450/aws-dynamodb.svg" width="50" alt="DynamoDB"/>
   <img src="https://cdn.worldvectorlogo.com/logos/aws-sns.svg" width="50" alt="SNS"/>
@@ -57,9 +57,9 @@
 
 <div align="center">
   <strong>Contenedores & DevOps</strong><br/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="50" alt="Docker"/>
+  <img src="https://www.svgrepo.com/show/331370/docker.svg" width="50" alt="Docker"/>
   <img src="https://symbols.getvecta.com/stencil_9/14_amazon-ecs.c923666086.png" width="50" alt="ECS"/>
-  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrDHURZovzN7Xoo0_PB4etEx8tV3ZoPLkp_g&s" width="50" alt="ECR"/>
+  <img src="https://symbols.getvecta.com/stencil_9/12_amazon-ecr.df3492d909.png" width="50" alt="ECR"/>
   <img src="https://cdn.worldvectorlogo.com/logos/aws-cloudformation.svg" width="50" alt="CloudFormation"/>
 </div>
 
@@ -68,7 +68,7 @@
 <div align="center">
   <strong>Herramientas</strong><br/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50" alt="Git"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="50" alt="GitHub"/>
+  <img src="https://www.svgrepo.com/show/475654/github-color.svg" width="50" alt="GitHub"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" width="50" alt="VS Code"/>
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/PowerShell_5.0_icon.png" width="50" alt="PowerShell"/>
 </div>
