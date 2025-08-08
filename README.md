@@ -26,40 +26,52 @@
 
 ## 🚀 Stack Técnico Completo
 
-<p align="center">
+<div align="center">
   <strong>Backend & API</strong><br/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="50" alt="Python"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="50" alt="FastAPI"/>
-  <br/><br/>
-  
+</div>
+
+<br/>
+
+<div align="center">
   <strong>Frontend</strong><br/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="50" alt="React"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="50" alt="TypeScript"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="50" alt="HTML5"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="50" alt="CSS3"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="50" alt="Nginx"/>
-  <br/><br/>
-  
+</div>
+
+<br/>
+
+<div align="center">
   <strong>Cloud & Infraestructura</strong><br/>
   <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" width="70" alt="AWS"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/Storage/SimpleStorageServiceS3.png" width="50" alt="S3"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/Database/DynamoDB.png" width="50" alt="DynamoDB"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/ApplicationIntegration/SimpleNotificationService.png" width="50" alt="SNS"/>
-  <br/><br/>
-  
+  <img src="https://www.svgrepo.com/show/349587/amazon-s3.svg" width="50" alt="S3"/>
+  <img src="https://www.svgrepo.com/download/353450/aws-dynamodb.svg" width="50" alt="DynamoDB"/>
+  <img src="https://cdn.worldvectorlogo.com/logos/aws-sns.svg" width="50" alt="SNS"/>
+</div>
+
+<br/>
+
+<div align="center">
   <strong>Contenedores & DevOps</strong><br/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="50" alt="Docker"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/Compute/ElasticContainerService.png" width="50" alt="ECS"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/Compute/ElasticContainerRegistry.png" width="50" alt="ECR"/>
-  <img src="https://raw.githubusercontent.com/aws/aws-icons-for-plantuml/main/dist/ManagementGovernance/CloudFormation.png" width="50" alt="CloudFormation"/>
-  <br/><br/>
-  
+  <img src="https://symbols.getvecta.com/stencil_9/14_amazon-ecs.c923666086.png" width="50" alt="ECS"/>
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrDHURZovzN7Xoo0_PB4etEx8tV3ZoPLkp_g&s" width="50" alt="ECR"/>
+  <img src="https://cdn.worldvectorlogo.com/logos/aws-cloudformation.svg" width="50" alt="CloudFormation"/>
+</div>
+
+<br/>
+
+<div align="center">
   <strong>Herramientas</strong><br/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50" alt="Git"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="50" alt="GitHub"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" width="50" alt="VS Code"/>
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/PowerShell_5.0_icon.png" width="50" alt="PowerShell"/>
-</p>
+</div>
 
 ### 📋 Tecnologías Detalladas
 
