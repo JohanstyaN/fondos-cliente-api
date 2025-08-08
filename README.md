@@ -9,8 +9,8 @@
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="60" height="60" alt="FastAPI"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="60" height="60" alt="React"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="60" height="60" alt="TypeScript"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="60" height="60" alt="Docker"/>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" width="60" alt="AWS"/>
+  <img src="https://www.svgrepo.com/show/331370/docker.svg" width="60" height="60" alt="Docker"/>
+  <img src="https://images.icon-icons.com/2407/PNG/512/aws_icon_146074.png" width="60" alt="AWS"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="60" height="60" alt="Nginx"/>
 </p>
 
@@ -47,7 +47,7 @@
 
 <div align="center">
   <strong>Cloud & Infraestructura</strong><br/>
-  <img src="https://www.vissensa.com/wp-content/uploads/2021/10/Amazon-Web-Services-AWS-Logo.png" width="70" alt="AWS"/>
+  <img src="https://images.icon-icons.com/2407/PNG/512/aws_icon_146074.png" width="50" alt="AWS"/>
   <img src="https://www.svgrepo.com/show/349587/amazon-s3.svg" width="50" alt="S3"/>
   <img src="https://www.svgrepo.com/download/353450/aws-dynamodb.svg" width="50" alt="DynamoDB"/>
   <img src="https://cdn.worldvectorlogo.com/logos/aws-sns.svg" width="50" alt="SNS"/>
@@ -60,7 +60,7 @@
   <img src="https://www.svgrepo.com/show/331370/docker.svg" width="50" alt="Docker"/>
   <img src="https://symbols.getvecta.com/stencil_9/14_amazon-ecs.c923666086.png" width="50" alt="ECS"/>
   <img src="https://symbols.getvecta.com/stencil_9/12_amazon-ecr.df3492d909.png" width="50" alt="ECR"/>
-  <img src="https://cdn.worldvectorlogo.com/logos/aws-cloudformation.svg" width="50" alt="CloudFormation"/>
+  <img src="https://cdn.worldvectorlogo.com/logos/aws-cloudformation.svg" width="45" alt="CloudFormation"/>
 </div>
 
 <br/>
