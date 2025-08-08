@@ -230,6 +230,46 @@ function Load-TestData {
     Write-Success 'Test data loading completed!'
 }
 
+# Delete stack
+function Remove-Stack {
+    $stackStatus = Get-StackStatus
+    
+    if ($stackStatus -ne "DOES_NOT_EXIST") {
+        Write-Warning "Deleting stack: $global:STACK_NAME"
+        $confirmation = Read-Host "Are you sure you want to delete the stack? (y/N)"
+        if ($confirmation -eq "y" -or $confirmation -eq "Y") {
+            Write-Info "Deleting CloudFormation stack..."
+            aws cloudformation delete-stack --stack-name $global:STACK_NAME --region $global:REGION
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Stack deletion initiated"
+                
+                # Wait for deletion to complete
+                Write-Info "Waiting for stack deletion to complete..."
+                while ($true) {
+                    $status = Get-StackStatus
+                    if ($status -eq "DOES_NOT_EXIST") {
+                        Write-Success "Stack deleted successfully"
+                        break
+                    } elseif ($status -eq "DELETE_FAILED") {
+                        Write-Error "Stack deletion failed"
+                        break
+                    } else {
+                        Write-Host "Current status: $status"
+                        Start-Sleep 30
+                    }
+                }
+            } else {
+                Write-Error "Stack deletion failed to initiate"
+            }
+        } else {
+            Write-Info "Stack deletion cancelled"
+        }
+    } else {
+        Write-Warning "Stack does not exist: $global:STACK_NAME"
+    }
+}
+
 # Main execution
 switch ($Step) {
     "stack" {
@@ -263,6 +303,14 @@ switch ($Step) {
     "load-data" {
         Write-Info "Loading test data..."
         Load-TestData
+    }
+    "delete" {
+        Write-Info "Initiating stack cleanup..."
+        Remove-Stack
+    }
+    "cleanup" {
+        Write-Info "Initiating complete cleanup..."
+        Remove-Stack
     }
     "all" {
         Write-Info "Starting deployment/update process..."
@@ -339,6 +387,8 @@ switch ($Step) {
         Write-Host "  url       Get Load Balancer URL"
         Write-Host "  status    Show stack status"
         Write-Host "  load-data Load test data into DynamoDB tables"
+        Write-Host "  delete    Delete the CloudFormation stack (with confirmation)"
+        Write-Host "  cleanup   Same as delete - complete cleanup"
         Write-Host "  all       Complete deployment/update process (default)"
         Write-Host ""
         Write-Host "Pre-requisite: Run .\build.ps1 all first to build images"

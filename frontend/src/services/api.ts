@@ -5,7 +5,18 @@ import {
   TransactionHistoryModel 
 } from '../types/funds';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || window.location.origin;
+// Get API URL from runtime environment or fallback to build-time environment
+const getApiUrl = (): string => {
+  // Try to get from runtime environment (injected by nginx)
+  if (typeof window !== 'undefined' && (window as any).ENV?.REACT_APP_API_URL) {
+    return (window as any).ENV.REACT_APP_API_URL;
+  }
+  
+  // Fallback to build-time environment variable
+  return process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+};
+
+const API_BASE_URL = getApiUrl();
 
 // Logger function
 const log = {
@@ -126,4 +137,4 @@ export const fundsApi = {
   },
 };
 
-export default api; 
+export default api;

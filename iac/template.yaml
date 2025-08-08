@@ -334,17 +334,15 @@ Resources:
             Retries: 3
             StartPeriod: 60
         - Name: frontend
-          Image: !Ref FrontendImageUri
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/client-funds-frontend:latest"
+          Memory: 512
           Essential: true
+          Environment:
+            - Name: REACT_APP_API_URL
+              Value: !Sub "http://${ApplicationLoadBalancer.DNSName}"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
-          Environment:
-            - Name: REACT_APP_API_URL
-              Value: !Sub 'http://${ApplicationLoadBalancer.DNSName}'
-          DependsOn:
-            - ContainerName: backend
-              Condition: HEALTHY
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -498,5 +496,7 @@ Outputs:
   SMSTopicArn:
     Description: ARN of the SMS notification topic
     Value: !Ref SMSNotificationTopic
+    Export:
+      Name: client-funds-sms-topic-arn
     Export:
       Name: client-funds-sms-topic-arn

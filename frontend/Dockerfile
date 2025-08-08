@@ -8,14 +8,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
-RUN npm ci --only=production
+RUN npm ci
 
 # Copiar código fuente
 COPY . .
-
-# Configurar la URL de la API (se pasa como build arg)
-ARG REACT_APP_API_URL
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 # Construir la aplicación
 RUN npm run build
@@ -29,8 +25,16 @@ COPY --from=build /app/build /usr/share/nginx/html
 # Copiar configuración personalizada de nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Crear script para sustituir variables de entorno
+RUN echo '#!/bin/sh' > /docker-entrypoint.d/30-envsubst.sh && \
+    echo 'envsubst < /usr/share/nginx/html/env-config.js.template > /usr/share/nginx/html/env-config.js' >> /docker-entrypoint.d/30-envsubst.sh && \
+    chmod +x /docker-entrypoint.d/30-envsubst.sh
+
+# Crear plantilla de configuración del entorno
+RUN echo 'window.ENV = { REACT_APP_API_URL: "${REACT_APP_API_URL}" };' > /usr/share/nginx/html/env-config.js.template
+
 # Exponer puerto 80
 EXPOSE 80
 
 # Comando para iniciar nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]
