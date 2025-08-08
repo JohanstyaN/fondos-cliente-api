@@ -1,5 +1,4 @@
 # Build Script - Builds and pushes Docker images to ECR
-# Use this before deploying the CloudFormation stack
 
 param(
     [Parameter(Position=0)]

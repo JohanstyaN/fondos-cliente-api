@@ -8,7 +8,6 @@ import logging
 import traceback
 import time
 
-# Configurar logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,22 +21,18 @@ logger = logging.getLogger("fondos-api")
 
 app = FastAPI()
 
-# Middleware para logging de requests
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
     
-    # Log request
     logger.info(f"🔵 REQUEST: {request.method} {request.url}")
     logger.info(f"🔵 Headers: {dict(request.headers)}")
     
-    # Read body if it exists
     if request.method in ["POST", "PUT", "PATCH"]:
         body = await request.body()
         if body:
             logger.info(f"🔵 Body: {body.decode('utf-8')}")
-        # Important: create a new request with the body for the next middleware
-        
+
         async def receive():
             return {"type": "http.request", "body": body}
         
@@ -68,16 +63,14 @@ async def log_requests(request: Request, call_next):
             }
         )
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especifica los dominios exactos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Endpoint para manejar CORS preflight requests
 @app.options("/{full_path:path}")
 async def options_handler(request: Request, full_path: str):
     return Response(
@@ -89,7 +82,6 @@ async def options_handler(request: Request, full_path: str):
         }
     )
 
-# Health check endpoint
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "fondos-api"}

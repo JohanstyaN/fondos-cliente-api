@@ -7,7 +7,6 @@ interface SubscribeFormProps {
   onError: (error: string) => void;
 }
 
-// Logger function
 const log = {
   info: (message: string, data?: any) => {
     console.log(`🔵 [SubscribeForm] ${message}`, data ? JSON.stringify(data, null, 2) : '');

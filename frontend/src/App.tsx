@@ -5,7 +5,6 @@ import CancelForm from './components/CancelForm';
 import TransactionHistory from './components/TransactionHistory';
 import { FundTransactionResponse } from './types/funds';
 
-// Logger function
 const log = {
   info: (message: string, data?: any) => {
     console.log(`🔵 [App] ${message}`, data ? JSON.stringify(data, null, 2) : '');

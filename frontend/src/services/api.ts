@@ -5,20 +5,16 @@ import {
   TransactionHistoryModel 
 } from '../types/funds';
 
-// Get API URL from runtime environment or fallback to build-time environment
 const getApiUrl = (): string => {
-  // Try to get from runtime environment (injected by nginx)
   if (typeof window !== 'undefined' && (window as any).ENV?.REACT_APP_API_URL) {
     return (window as any).ENV.REACT_APP_API_URL;
   }
   
-  // Fallback to build-time environment variable
   return process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 };
 
 const API_BASE_URL = getApiUrl();
 
-// Logger function
 const log = {
   info: (message: string, data?: any) => {
     console.log(`[API INFO] ${message}`, data ? JSON.stringify(data, null, 2) : '');
@@ -38,7 +34,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
 api.interceptors.request.use(
   (config) => {
     log.info(`Request: ${config.method?.toUpperCase()} ${config.url}`, {
@@ -54,7 +49,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
 api.interceptors.response.use(
   (response) => {
     log.success(`Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, {
@@ -84,7 +78,6 @@ api.interceptors.response.use(
 );
 
 export const fundsApi = {
-  // Health check
   healthCheck: async (): Promise<{ status: string }> => {
     try {
       log.info('Health check started');
@@ -97,7 +90,6 @@ export const fundsApi = {
     }
   },
 
-  // Subscribe to a fund
   subscribe: async (request: FundTransactionRequest): Promise<FundTransactionResponse> => {
     try {
       log.info('Subscribe request started', request);
@@ -110,7 +102,6 @@ export const fundsApi = {
     }
   },
 
-  // Cancel subscription
   cancel: async (request: FundTransactionRequest): Promise<FundTransactionResponse> => {
     try {
       log.info('Cancel request started', request);
@@ -123,7 +114,6 @@ export const fundsApi = {
     }
   },
 
-  // Get transaction history
   getHistory: async (): Promise<TransactionHistoryModel[]> => {
     try {
       log.info('Get history request started');

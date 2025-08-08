@@ -1,5 +1,4 @@
 # Deploy Script - Deploys CloudFormation stack using pre-built images
-# Use this after running: .\build.ps1 all
 param(
     [string]$Step = "help"
 )
@@ -243,8 +242,7 @@ function Remove-Stack {
             
             if ($LASTEXITCODE -eq 0) {
                 Write-Success "Stack deletion initiated"
-                
-                # Wait for deletion to complete
+
                 Write-Info "Waiting for stack deletion to complete..."
                 while ($true) {
                     $status = Get-StackStatus
@@ -315,45 +313,36 @@ switch ($Step) {
     "all" {
         Write-Info "Starting deployment/update process..."
         
-        # Deploy or update stack
         if (Deploy-StackOnly) {
             Write-Info "Stack operation initiated, waiting for completion..."
             
-            # Wait for completion
             if (Wait-ForStackCreation) {
                 
-                # Get URL
                 $url = Get-LoadBalancerURL
                 if ($url) {
                     Write-Success "Operation completed successfully!"
                     Write-Success "Application URL: $url"
                     
-                    # If this was the first deployment and frontend was built with placeholder,
-                    # rebuild frontend with correct URL and update again
                     $currentStatus = Get-StackStatus
                     if ($currentStatus -eq "CREATE_COMPLETE") {
                         Write-Info "Checking if frontend needs to be rebuilt with correct URL..."
                         
-                        # Check if we need to rebuild frontend (this is hacky but works)
-                        $needsRebuild = $true # For now, always rebuild after first create
+
+                        $needsRebuild = $true
                         
                         if ($needsRebuild) {
                             Write-Info "Rebuilding frontend with correct URL: $url"
                             
-                            # Go to root directory and rebuild frontend
                             $currentDir = Get-Location
                             Set-Location "f:\Github\fondos-cliente-api"
                             
-                            # Call build script for frontend only
                             & ".\iac\build.ps1" "frontend"
                             
-                            # Return to iac directory
                             Set-Location $currentDir
                             
                             if ($LASTEXITCODE -eq 0) {
                                 Write-Info "Frontend rebuilt successfully. Updating stack again..."
                                 
-                                # Update stack with new frontend image
                                 if (Deploy-StackOnly) {
                                     if (Wait-ForStackCreation) {
                                         Write-Success "Final update completed! Frontend now has correct URL."
