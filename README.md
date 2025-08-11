@@ -516,8 +516,3 @@ aws logs filter-log-events --log-group-name /ecs/client-funds --start-time $(Get
 - ✅ **API RESTful**: Documentación automática con FastAPI
 - ✅ **Frontend Responsivo**: React con TypeScript
 
-
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver archivo [LICENSE](LICENSE) para detalles.
