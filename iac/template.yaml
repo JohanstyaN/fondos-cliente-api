@@ -4,13 +4,13 @@ Description: 'Client Funds Management System Infrastructure'
 Parameters:
   BackendImageUri:
     Type: String
-    Default: '259711294275.dkr.ecr.us-east-1.amazonaws.com/client-funds-backend:latest'
-    Description: 'Backend Docker image URI'
+    Default: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/client-funds-backend:latest'
+    Description: 'Backend Docker image URI (dynamically constructed)'
   
   FrontendImageUri:
     Type: String
-    Default: '259711294275.dkr.ecr.us-east-1.amazonaws.com/client-funds-frontend:latest'
-    Description: 'Frontend Docker image URI'
+    Default: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/client-funds-frontend:latest'
+    Description: 'Frontend Docker image URI (dynamically constructed)'
 
 Resources:
   # VPC and Networking
@@ -334,7 +334,7 @@ Resources:
             Retries: 3
             StartPeriod: 60
         - Name: frontend
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/client-funds-frontend:latest"
+          Image: !Ref FrontendImageUri
           Memory: 512
           Essential: true
           Environment:
